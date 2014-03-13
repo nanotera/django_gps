@@ -1,0 +1,13 @@
+{% load staticfiles %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'gps/style.css' %}" />
+
+{% if object_list  %}
+    <ul>
+    {% for mysession in object_list  %}
+        <li>My Session list item <a href="/gps/{{mysession.id }}/">{{ mysession.NickName }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No sessions are available.</p>
+{% endif %}

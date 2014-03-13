@@ -1,0 +1,15 @@
+<p>TEST form using form.as_p </p>
+<h1>
+{{ name }}
+6
+{{ request.settings.name }}
+{{ request.settings.user.email }}
+{{ request.user.email }}
+2
+{{ name }}
+
+</h1>
+<form action='/gps/testform' method='post'>{% csrf_token %}
+{{ form.as_p }}
+<input type='submit' value='Submit' />
+</form>

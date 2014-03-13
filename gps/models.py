@@ -43,6 +43,7 @@ user_registered.connect(user_registered_callback, dispatch_uid="gps_user_registe
 
 # Create your models here.
 class Session(models.Model):
+        user = models.ForeignKey(User, unique=True)
         FullName=models.CharField( 'FullName', max_length=32)
         NickName=models.CharField('NickName', max_length=32)
         SessionDate=models.DateField('SessionDate')

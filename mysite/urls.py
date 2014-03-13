@@ -5,7 +5,9 @@ from django.contrib import admin
 from django.contrib.auth.views import login
 from django.views.generic.simple import direct_to_template
 
-	
+from gps.forms import ExRegistrationForm
+from registration.backends.default.views import RegistrationView
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -19,6 +21,8 @@ urlpatterns = patterns('',
 
 	# Uncomment the next line to enable the admin:
 	url(r'^admin/', include(admin.site.urls)),
+        
+	url(r'^accounts/register/$', RegistrationView.as_view(form_class = ExRegistrationForm), name = 'registration_register'),
 	url(r'^accounts/',include('registration.backends.default.urls')),
 	
 	(r'^$', direct_to_template, { 'template': 'index.html' }, 'index'),

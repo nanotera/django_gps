@@ -62,7 +62,7 @@ class Session(models.Model):
         Distance_Travelled=models.FloatField('Distance Travelled')
         Distance_Travelled_Method=models.CharField('Distance Travelled Method', max_length=1)
         Comments=models.TextField('Comments')
-        Location=models.ForeignKey('Location')
+        Location=models.ForeignKey('Location', null=True )
 
         def __unicode__(self):
                 return self.SessionDate.isoformat()+' '+self.FullName+' '+self.NickName

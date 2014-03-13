@@ -4,7 +4,7 @@ from gps.models import Session
 
 class TestForm(forms.Form):
 	content=forms.CharField(max_length=20)
-	file =forms.FileField()
+	#	file =forms.FileField()
 
 class SessionForm(ModelForm):
 	class Meta:

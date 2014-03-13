@@ -1,6 +1,9 @@
 <p>TEST form using form.as_p </p>
 <h1>
-{% form.user.email %}
+{{ user.username }}
+{{ userprofile.gpstc_sailor_id }}
+{{ user.email }}
+
 
 </h1>
 <form action='/gps/testform' method='post'>{% csrf_token %}

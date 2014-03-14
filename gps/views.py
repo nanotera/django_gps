@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 
 from django.contrib.auth.decorators import login_required
 
-from gps.forms import SessionForm, TestForm
+from gps.forms import SessionForm, ImportSessions
 
 from gps.models import UserProfile
 from gps.models import Session
@@ -36,17 +36,17 @@ def post_form_upload(request):
 	return render_to_response('gps/post_form_upload.html',{ 'form': form, 'name': request.user.username, }, context_instance=RequestContext(request) )
 
 @login_required
-def testform(request):
+def importsessions(request):
 	
 	import pdb
 	userprofile=UserProfile.objects.get(user_id = request.user.id)
 
 
 	if request.method == 'GET':
-		form = TestForm()
+		form = ImportSessions()
 	else:
 		# A POST request: Handle Form Upload
-		form = TestForm(request.POST) # Bind data from request.POST into a PostForm
+		form = ImportSessions(request.POST) # Bind data from request.POST into a PostForm
 	 
 		# If data is valid, proceeds to create a new post and redirect the user
 		if form.is_valid():
@@ -70,6 +70,8 @@ def testform(request):
 			fdata=StringIO.StringIO(data)
 			csvfile=csv.reader(fdata)
 			i=0
+			errcnt=0
+			impcnt=0
 			pdb.set_trace()
 			for r in csvfile:
 				try: 
@@ -103,13 +105,17 @@ def testform(request):
 					print "oops"
 					pdb.set_trace()
 					err=1
+					errcnt=errcnt+1
 
 				if (err == 0 ) :
 					newsess.save()
+					impcnt=impcnt+1
 					
 			print i
-			return HttpResponseRedirect(('testform'))
+			#return HttpResponseRedirect(('ImportSessonsResult'))
+			return render_to_response('gps/importsessionsresult.html',{ 'form': form, 'user': request.user , 'userprofile':userprofile, 'items_read':i, 'items_with_errors':errcnt, 'items_found':0, 'items_added':impcnt }, context_instance=RequestContext(request) )
 
-	return render_to_response('gps/testform.html',{ 'form': form, 'user': request.user , 'userprofile':userprofile }, context_instance=RequestContext(request) )
+
+	return render_to_response('gps/importsessions.html',{ 'form': form, 'user': request.user , 'userprofile':userprofile }, context_instance=RequestContext(request) )
 
 

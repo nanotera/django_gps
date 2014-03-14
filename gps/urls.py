@@ -17,7 +17,7 @@ urlpatterns = patterns('',
 	(r'^(?P<object_id>\d+)/$', 'django.views.generic.list_detail.object_detail', info_dict),
 	url(r'^(?P<object_id>\d+)/results/$', 'django.views.generic.list_detail.object_detail', dict(info_dict, template_name='gps/'), 'session_list'),
 	url(r'^post_form_upload.html$', 'gps.views.post_form_upload', name='post_form_upload'),
-	url(r'^testform$', 'gps.views.testform', name='testform'),
+	url(r'^importsessions$', 'gps.views.importsessions', name='importsessions'),
 
  
 )

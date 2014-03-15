@@ -110,9 +110,9 @@ p {
 
 #menu a {
 	color: white;
-	height: 10.5em;
+/*	height: 10.5em;
 	padding-top: 3px;
-/*	border: 1px solid black; */
+	border: 1px solid black; */
 }
 
 li.folder ul{
@@ -165,6 +165,7 @@ li.folder ul{
 	/* height: 30px;
 	width: 942px; 
 	*/
+	padding-top: 10px;
 	padding-left: 50px;
 	padding-right: 50px;
 	/*background: url('../img/menubg.jpg') repeat-y left;*/

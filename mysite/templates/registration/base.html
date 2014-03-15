@@ -8,7 +8,7 @@
     
 <link rel="stylesheet" type="text/css" href="{% static 'gps/style.css' %}" />
 
-    <title>{% block title %}Django GPS base html file {% endblock %}</title>
+    <title>{% block title %}Django GPS application {% endblock %}</title>
 </head>
 
 <body>
@@ -17,7 +17,6 @@
 	<div id="menubackground">
 		<div id="menu">
 			<a href="{% url index %}">{% trans "Home" %}</a> | 
-
 			{% if user.is_authenticated %}
 			{% trans "Logged in" %}: {{ user.username }} 
 			(<a href="{% url auth_logout %}">{% trans "Log out" %}</a> | 
@@ -26,9 +25,9 @@
 			<a href="{% url auth_login %}">{% trans "Log in" %}</a>
 			{% endif %}
 			<hr />
-		        {% endblock %}
 	    	</div>
     	</div>
+	{% endblock %}
     </div>
 
     <div id="content-container">

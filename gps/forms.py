@@ -5,11 +5,17 @@ from gps.models import Session
 class ImportSessions(forms.Form):
 	content=forms.CharField(max_length=20)
 	#	file =forms.FileField()
+	
 
 class SessionForm(ModelForm):
 	class Meta:
 		model = Session
 		#fields = ['__all__']
+
+
+##
+## add extra fields to replacement registration form
+##
 
 from registration.forms import RegistrationForm
  

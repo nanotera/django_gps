@@ -1,6 +1,9 @@
 from django.db import models
-
 from django.contrib.auth.models import User
+
+##
+## userprofile table with extra data specific to this app
+##
 
 class UserProfile(models.Model):
     # This field is required.
@@ -14,17 +17,9 @@ class UserProfile(models.Model):
         return unicode(self.user)
 
 
-#from django.contrib.auth.models import User
-#from django.db.models.signals import post_save
-
-# definition of UserProfile from above
-# ...
-
-#def create_user_profile(sender, instance, created, **kwargs):
-#	if created:
-#        UserProfile.objects.create(user=instance)
-
-#post_save.connect(create_user_profile, sender=User)
+##
+## add new data when user registers
+##
 
 from registration.signals import user_registered
  
@@ -41,7 +36,11 @@ user_registered.connect(user_registered_callback, dispatch_uid="gps_user_registe
 
 
 
-# Create your models here.
+
+##
+## Models for GPS app 
+##
+
 class Session(models.Model):
         user = models.ForeignKey(User)
         FullName=models.CharField( 'FullName', max_length=32)
@@ -67,11 +66,15 @@ class Session(models.Model):
         def __unicode__(self):
                 return self.SessionDate.isoformat()+' '+self.FullName+' '+self.NickName
 
+##
+
 class Location(models.Model):
         Name=models.CharField(max_length=20)
         Description=models.CharField(max_length=300)
         def __unicode__(self):
                 return self.Name
+
+##
 
 EQUIPMENT_TYPE_CHOICES=(
         ('Board',"Board"),
@@ -79,6 +82,8 @@ EQUIPMENT_TYPE_CHOICES=(
         ('Fin','Fin'),
         ('Other','Other'),
 )
+
+##
 
 class Equipment(models.Model):
         user = models.ForeignKey(User)
@@ -88,7 +93,7 @@ class Equipment(models.Model):
         def __unicode__(self):
                 return self.Name
 
-
+##
 
 class SessionEquipment(models.Model):
         Session=models.ForeignKey('Session')

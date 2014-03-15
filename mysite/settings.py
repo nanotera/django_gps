@@ -134,6 +134,7 @@ INSTALLED_APPS = (
      'django.contrib.admindocs',
      'registration',
      'gps',
+     'django_tables2'
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
@@ -143,6 +144,8 @@ LOGIN_REDIRECT_URL = '/'
 
 #AUTH_PROFILE_MODULE = 'gps.UserProfile'
 
+from django.conf import settings
+TEMPLATE_CONTEXT_PROCESSORS = settings.TEMPLATE_CONTEXT_PROCESSORS + ( 'django.core.context_processors.request',)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

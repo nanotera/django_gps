@@ -13,6 +13,7 @@ info_dict = {
 
 urlpatterns = patterns('',
 	url(r'^register/$', RegistrationView.as_view(form_class = ExRegistrationForm), name = 'registration_register'), 
+	url(r'list', 'gps.views.SessionsAsTable'),
 	(r'^$', 'django.views.generic.list_detail.object_list', info_dict),
 	(r'^(?P<object_id>\d+)/$', 'django.views.generic.list_detail.object_detail', info_dict),
 	url(r'^(?P<object_id>\d+)/results/$', 'django.views.generic.list_detail.object_detail', dict(info_dict, template_name='gps/'), 'session_list'),

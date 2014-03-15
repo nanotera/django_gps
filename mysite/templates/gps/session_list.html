@@ -9,11 +9,9 @@ GPS analysis list of sessions
 {% block content %}
 
 
-{% if object_list  %}
-          {% render_table object_list %}
-{% else %}
-    <p>No sessions are available.</p>
-{% endif %}
+
+          
+{% render_table table %}
 
 
 {% endblock %}

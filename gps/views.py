@@ -1,6 +1,6 @@
 # Create your views here.
 #from django.forms import ModelForm
-#from django.shortcuts import render
+from django.shortcuts import render
 from django.template import Context, loader
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -18,6 +18,19 @@ import csv,  urllib2, StringIO, re, sys
 
 from datetime import datetime
 from django.utils import timezone
+
+
+##
+##
+##
+
+from django_tables2   import RequestConfig
+from gps.tables  import SessionTable
+
+def SessionsAsTable(request):
+    table = SessionTable(Session.objects.all().values('SessionDate','Two_Second_Peak','Five_X_10_Second_Average','Alpha_Racing_500m','Nautical_Mile','One_Hour'))
+    RequestConfig(request).configure(table)
+    return render(request, 'gps/session_list.html', {'table': table})
 
 ##
 ##

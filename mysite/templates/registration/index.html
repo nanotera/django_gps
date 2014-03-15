@@ -2,5 +2,29 @@
 {% load i18n %}
 
 {% block content %}
-Index page
+<p>This is the index page for the GPS team challenge data analysis web site.</p>
+<h2> UNDER DEVELOPMENT DATA IS TEMPORARY </h2>
+<p>
+The purpose of this web site is to allow a user to read the data posted into the main GPS Team Challenge web site at <a href="http://www.gpsteamchallenge.com.au">www.gpsteamchallenge.com.au</a> into this site. Then add to it extra information such as the location of each posting and the equipment used. 
+This will allow the use to then get information like personal best results at each location or with each combination of equipment. Duplicating the data here allows the analysis to be done without any risk or extra load on the "real" gpsteamchallenge site.</p>
+<p></p>
+<p>These are the various pages within this site.</p>
+<p></p>
+
+<ul>
+<li> <a href="./admin">Admin menu.</a></li>
+<li> <a href="./gps">GPS Sessions List, view and maintain sessions.</a></li>
+<li> <a href="./gps/importsessions">Import GPS Sessions.</a></li>
+<li> <a href="./gps/maintainequipment">Maintain the list of equipment for this user. *</a></li>
+<li> <a href="./gps/maintainlocations">Maintain the list of global locations. *</a></li>
+<li> <a href="./gps/bestsessionsbylocation">Best GPS Sessions by locations. *</a></li>
+<li> <a href="./gps/bestsessionsbyequipment">Best GPS Sessions by locations. *</a></li>
+</ul>
+<p></p>
+<p>* not developed yet </p>
+<p></p>
+<p>The colors and style of this site has been shamelessly copied from the GPS Team Challenge site, <a href="http://www.zensoft.com.au">Zensoft</a><br>
+									Websites, Databases, Electronics.</p>
+
+
 {% endblock %}

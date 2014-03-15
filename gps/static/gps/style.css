@@ -23,6 +23,10 @@
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
+/*
+ * copied from gpsteamchallenge.com.au web site by JT in 2014 then modified
+*/ 
+ 
 * {
 	margin:0px;
 	padding:0px;
@@ -38,11 +42,6 @@ middle blue: 89C6EC;
 Menu background: #1F80B7;
 dark blue: #13587F;
 
-
-
-
-
-
 */
 
 
@@ -50,7 +49,7 @@ dark blue: #13587F;
 body {
 	background: #A5C1CF;
 	color: #fff;
-	font-family:'lucida grande',verdana,helvetica,arial,sans-serif;
+	font-family:'lucida grande',verdana,helvetica,arial,sans-serif; 
 	font-size:90%;
 	margin: 0;
 }
@@ -84,7 +83,7 @@ h4 {
 	padding-top: 0.5em;
 }
 ul, li {
-	margin: 0 12px;
+	margin: 0 10px;
 }
 
 p {
@@ -111,7 +110,7 @@ p {
 
 #menu a {
 	color: white;
-	height: 1.5em;
+	height: 10.5em;
 	padding-top: 3px;
 /*	border: 1px solid black; */
 }
@@ -140,9 +139,15 @@ li.folder ul{
 }
 
 #header{
-	height: 119px;
+	/* remove this as we dont have a picture to go there yet
+ 	height: 119px;
 	width: 1042px;
 	background: url('../img/header_2011.jpg') no-repeat left;
+*/
+	padding-top: 25px;
+	padding-left: 50px;
+	padding-right: 50px;
+	padding-bottom: 25px;
 }
 
 #header #member_login {
@@ -157,11 +162,13 @@ li.folder ul{
 }
 
 #menubackground{
-	height: 30px;
-	width: 942px;
+	/* height: 30px;
+	width: 942px; 
+	*/
 	padding-left: 50px;
 	padding-right: 50px;
-	background: url('../img/menubg.jpg') repeat-y left;
+	/*background: url('../img/menubg.jpg') repeat-y left;*/
+	background-color:#2180B8;
 }
 
 
@@ -170,11 +177,14 @@ li.folder ul{
 #content-container
 {
 	background: url('../img/bodybg.jpg') repeat-y left;
+	/*background-color:#00ffff;
+	background:#00ffff; */
 	padding-left: 50px;
 	padding-right: 50px;
 	min-height: 350px;
 }
 
+/* this is the middle section */
 #content{
 	background: #fff;
 	clear: both;
@@ -207,7 +217,7 @@ li.folder ul{
 #content a {
 	color: #003d4c;
 	text-decoration: underline;
-	font-weight: bold;
+	/* font-weight: bold; */
 }
 #content a:hover {
 	background:#fff;

@@ -12,6 +12,8 @@ class UserProfile(models.Model):
     # Other fields here
     #accepted_eula = models.BooleanField()
     gpstc_sailor_id = models.DecimalField(max_digits=6, decimal_places=0 , default=0)
+    gpstc_team_id = models.DecimalField(max_digits=6, decimal_places=0 , default=0)
+    sailor_picture = models.ImageField(null=True)
 
     def __unicode__(self):
         return unicode(self.user)
@@ -27,6 +29,7 @@ def user_registered_callback(sender, user, request, **kwargs):
     profile = UserProfile(user = user)
     try:
 	profile.gpstc_sailor_id = request.POST["gpstc_sailor_id"]
+	profile.gpstc_team_id = request.POST["gpstc_team_id"]
     except:
         profile.gpstc_sailor_id = 1
 
@@ -62,6 +65,8 @@ class Session(models.Model):
         Distance_Travelled_Method=models.CharField('Distance Travelled Method', max_length=1)
         Comments=models.TextField('Comments')
         Location=models.ForeignKey('Location', null=True )
+	KA72url=models.URLField(null=True)
+	SessionImage = models.ImageField(null=True)
 
         def __unicode__(self):
                 return self.SessionDate.isoformat()+' '+self.FullName+' '+self.NickName

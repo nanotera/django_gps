@@ -45,11 +45,11 @@ user_registered.connect(user_registered_callback, dispatch_uid="gps_user_registe
 ## Models for GPS app 
 ##
 
-class QuerySetManager(models.Manager):
-	def get_query_set(self):
-		return self.model.QuerySet(self.model)
-	def __getattr__(self, attr, *args):
-		return getattr(self.get_query_set(), attr, *args)
+#class QuerySetManager(models.Manager):
+#	def get_query_set(self):
+#		return self.model.QuerySet(self.model)
+#	def __getattr__(self, attr, *args):
+#		return getattr(self.get_query_set(), attr, *args)
 
 
 
@@ -78,14 +78,19 @@ class Session(models.Model):
         Location=models.ForeignKey('Location', null=True )
 	KA72url=models.URLField(null=True,blank=True)
 	SessionImage = models.ImageField(null=True,blank=True,upload_to='sessionimage')
-	objects=QuerySetManager()
+	#objects=QuerySetManager()
 
-	class QuerySet(QuerySet):
-		def SessionEditableFields(self):
-			return self.values('FullName','SessionDate')
+	#class QuerySet(QuerySet):
+	#	def SessionEditableFields(self):
+	#		return self.values('FullName','SessionDate')
 
         def __unicode__(self):
-                return self.SessionDate.isoformat()+' '+self.FullName+' '+self.NickName
+		myloc=self.Location_id
+		if myloc:
+			myloc=self.Location.Name
+		else:
+			myloc="unknown location"
+                return self.SessionDate.isoformat()+' '+self.NickName+' '+str(self.Two_Second_Peak)+' ' + myloc
 
 
 
@@ -121,6 +126,6 @@ class SessionEquipment(models.Model):
         Session=models.ForeignKey('Session')
         Equipment=models.ForeignKey('Equipment')
         def __unicode__(self):
-                return self.Session.FullName+self.Equipment.Name
+                return self.Session.SessionDate.isoformat()+' '+self.Equipment.Name
 
 

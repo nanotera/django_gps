@@ -11,11 +11,32 @@ from django import forms
 import pdb
 
 
-pdb.set_trace
+
 admin.site.register(Location)
-admin.site.register(Equipment)
+
+class EquipmentAdmin(admin.ModelAdmin):
+	##
+	## return only session records owned by this user
+	##
+	def queryset(self, request):
+		qs=Equipment.objects.all()
+		if request.user.is_superuser:
+			return qs
+		return qs.filter(user_id=request.user.id)
+
+	def formfield_for_dbfield(self, field, **kwargs):
+		print field.name
+		#pdb.set_trace()
+		if not(kwargs['request'].user.is_superuser) and field.name=='user':
+		
+			qs =User.objects.all().filter(id=kwargs['request'].user.id)
+			kwargs['queryset']=qs
+		return super(EquipmentAdmin, self).formfield_for_dbfield(field, **kwargs)
+
+
+admin.site.register(Equipment,EquipmentAdmin)
+
 admin.site.register(SessionEquipment)
-#admin.site.register(Session.objects.SessionEditableFields())2:12 PM, 19/03/2014
 
 class SessionEquipmentInline(admin.TabularInline):
 	model = SessionEquipment
@@ -38,7 +59,7 @@ class SessionAdmin(admin.ModelAdmin):
 		(None,               {'fields': (('FullName','NickName','SessionDate',),)}),
 		#('Date information', {'fields': ['SessionDate'], 'classes': ['collapse']}),
 		#( None,               {'fields': ['NickName']}),
-		(None,               {'fields': (('Two_Second_Peak','Five_X_10_Second_Average','Alpha_Racing_500m','Nautical_Mile','One_Hour'),)}),
+		(None,               {'fields': (('Two_Second_Peak','Five_X_10_Second_Average','Alpha_Racing_500m','Nautical_Mile','One_Hour','Distance_Travelled'),),'classes':['gpstc_data'],}),
 		(None,               {'fields': (('Location','Comments'),)}),
 		
 	]
@@ -54,7 +75,7 @@ class SessionAdmin(admin.ModelAdmin):
 			return qs
 		return qs.filter(user_id=request.user.id)
 
-#admin.site.register(SessionEquipment ,SessionEquipmentAdmin )
+
 admin.site.register(Session,SessionAdmin)
 
 

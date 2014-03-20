@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 
 ##
 ## userprofile table with extra data specific to this app
@@ -13,7 +14,7 @@ class UserProfile(models.Model):
     #accepted_eula = models.BooleanField()
     gpstc_sailor_id = models.DecimalField(max_digits=6, decimal_places=0 , default=0)
     gpstc_team_id = models.DecimalField(max_digits=6, decimal_places=0 , default=0)
-    sailor_picture = models.ImageField(null=True)
+    sailor_picture = models.ImageField(null=True, blank=True, upload_to='sailor_picture')
 
     def __unicode__(self):
         return unicode(self.user)
@@ -26,13 +27,13 @@ class UserProfile(models.Model):
 from registration.signals import user_registered
  
 def user_registered_callback(sender, user, request, **kwargs):
-    profile = UserProfile(user = user)
+    profile = UserProfile( user = user )
     try:
-	profile.gpstc_sailor_id = request.POST["gpstc_sailor_id"]
-	profile.gpstc_team_id = request.POST["gpstc_team_id"]
+    	profile.gpstc_sailor_id = request.POST["gpstc_sailor_id"]
+    	profile.gpstc_team_id = request.POST["gpstc_team_id"]
     except:
-        profile.gpstc_sailor_id = 1
-
+        profile.gpstc_sailor_id = 0
+	profile.gpstc_team_id=0
     profile.save()
 
 user_registered.connect(user_registered_callback, dispatch_uid="gps_user_registered_callback")
@@ -43,6 +44,16 @@ user_registered.connect(user_registered_callback, dispatch_uid="gps_user_registe
 ##
 ## Models for GPS app 
 ##
+
+class QuerySetManager(models.Manager):
+	def get_query_set(self):
+		return self.model.QuerySet(self.model)
+	def __getattr__(self, attr, *args):
+		return getattr(self.get_query_set(), attr, *args)
+
+
+
+
 
 class Session(models.Model):
         user = models.ForeignKey(User)
@@ -65,13 +76,19 @@ class Session(models.Model):
         Distance_Travelled_Method=models.CharField('Distance Travelled Method', max_length=1)
         Comments=models.TextField('Comments')
         Location=models.ForeignKey('Location', null=True )
-	KA72url=models.URLField(null=True)
-	SessionImage = models.ImageField(null=True)
+	KA72url=models.URLField(null=True,blank=True)
+	SessionImage = models.ImageField(null=True,blank=True,upload_to='sessionimage')
+	objects=QuerySetManager()
+
+	class QuerySet(QuerySet):
+		def SessionEditableFields(self):
+			return self.values('FullName','SessionDate')
 
         def __unicode__(self):
                 return self.SessionDate.isoformat()+' '+self.FullName+' '+self.NickName
 
-##
+
+
 
 class Location(models.Model):
         Name=models.CharField(max_length=20)

@@ -27,8 +27,11 @@ from django.utils import timezone
 from django_tables2   import RequestConfig
 from gps.tables  import SessionTable
 
+@login_required
 def SessionsAsTable(request):
-    table = SessionTable(Session.objects.all().values('SessionDate','Two_Second_Peak','Five_X_10_Second_Average','Alpha_Racing_500m','Nautical_Mile','One_Hour'))
+    #import pdb
+    #pdb.set_trace()
+    table = SessionTable(Session.objects.filter(user_id = request.user.id ).values('FullName','SessionDate','Two_Second_Peak','Five_X_10_Second_Average','Alpha_Racing_500m','Nautical_Mile','One_Hour'))
     RequestConfig(request).configure(table)
     return render(request, 'gps/session_list.html', {'table': table})
 
@@ -37,7 +40,9 @@ def SessionsAsTable(request):
 ##
 
 @login_required
-def post_form_upload(request):
+def sessionform(request, pk):
+	import pdb
+	pdb.set_trace()
 	if request.method == 'GET':
 		form = SessionForm()
 	else:
@@ -46,15 +51,11 @@ def post_form_upload(request):
 	 
 		# If data is valid, proceeds to create a new post and redirect the user
 		if form.is_valid():
-			#content = form.cleaned_data['content']
-			#created_at = form.cleaned_data['created_at']
-			#Session = m.Post.objects.create(content=content, created_at=created_at)
 			s=form.save()
-			#return HttpResponseRedirect(reverse('post_form_upload.html', kwargs={'Session_id': s.id}))
-			return HttpResponseRedirect(('post_form_upload.html'))
+			return render_to_response('gps/session_form.html',{ 'form': form }, context_instance=RequestContext(request) )
+		
 
-
-	return render_to_response('gps/post_form_upload.html',{ 'form': form, 'name': request.user.username, }, context_instance=RequestContext(request) )
+	return render_to_response('gps/session_form.html',{ 'form': form }, context_instance=RequestContext(request) )
 
 ##
 ##
@@ -76,7 +77,7 @@ def importsessions(request):
 		#do all the work here
 
 		repat=re.compile('<.*?>')
-		
+
 		# test if user already has any sessions, if so just read in the current years ones.
 		currentyear= timezone.now().year
 		yearfilter="&year=" + str(currentyear)
@@ -109,7 +110,7 @@ def importsessions(request):
 		errcnt=0
 		impcnt=0
 		fndcnt=0
-		#pdb.set_trace()
+		
 		for r in csvfile:
 			if ( r[0]=="FullName" ):
 				print "firstline found ignore this one."
@@ -137,7 +138,8 @@ def importsessions(request):
 					newsess.Nautical_Mile_Method=r[14]
 					newsess.Distance_Travelled=float(r[15])
 					newsess.Distance_Travelled_Method=r[16]
-					newsess.Comments=repat.sub('',r[17])
+					newsess.Comments=repat.sub('',r[17].replace('&nbsp;',''))
+
 					readcnt+=1
 					err=0
 				except :

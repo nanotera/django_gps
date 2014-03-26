@@ -243,16 +243,23 @@ def processsessions(request):
 
 	userprofile=UserProfile.objects.get(user_id = request.user.id)
 
+	print request.method
+	pdb.set_trace()
 	if request.method == 'GET':
-		#pdb.set_trace()
 		
 		my_message=''
 		regex_left=r'([\s\W]|^)'
 		regex_right =r'([\s\W\n]|$)'
 
 		myequip=Equipment.objects.filter(user_id = request.user.id )
+
+		count_sessions=0
+		count_found=0
+		count_new=0
+
 		
         	for s in Session.objects.filter(user_id = request.user.id ): 
+			count_sessions+=1
 			#my_message=my_message + '\n' +  s.Comments
 			mycomment=s.Comments.upper()
 			for e in myequip:
@@ -269,33 +276,37 @@ def processsessions(request):
 							
 							try:
 								got1=SessionEquipment.objects.get(Session_id=s.id , Equipment_id=e.id)
-								my_message=my_message+ w + ' found '+ mycomment + '/n'
+								#my_message=my_message+ w + ' found '+ s.Comments + '/n'
+								count_found+=1
 								
 							except SessionEquipment.MultipleObjectsReturned:
-								my_message=my_message+ w + ' multiple found '+ mycomment + '/n'
+								#my_message=my_message+ w + ' multiple found '+ s.Comments + '/n'
+								count_found+=1
 								pass
 							
 							except SessionEquipment.DoesNotExist:
-								my_message=my_message+ w + ' created '+ mycomment + '/n'
+								#my_message=my_message+ w + ' created '+ s.Comments + '/n'
+								count_new+=1
 								newse=SessionEquipment()
 								newse.Session_id=s.id
 								newse.Equipment_id=e.id
 								newse.save()
 							
 
-			
+		my_message=' Sessions examined %d found $d  $d ' % count_sessions,count_found, count_new
+
 		form = ProcessSessionsForm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
 	
 		
 	else:
 		# A POST request: Handle Request here
+		#form = ProcessSessionsForm(request.POST)
+		#print form.is_valid()
+		print request.POST
+		return HttpResponseRedirect( '..' ) 
 
-		form = ProcessSessionsForm(request.POST)
-		print form.is_valid()
-		#	return HttpResponseRedirect( '..' ) 
 
-
-
+	pass
 	return render_to_response('gps/processsessions.html', {'form': form , 'user': request.user , 'userprofile':userprofile  } , context_instance=RequestContext(request) )
 
 

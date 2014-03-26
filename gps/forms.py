@@ -28,9 +28,9 @@ class ProcessSessionsForm(forms.Form):
 		#return my_message
 
 
-	my_user=forms.CharField(max_length=20 )
+	#my_user=forms.CharField(max_length=20 )
 	my_message = forms.CharField(widget=forms.Textarea, initial='')
-	my_yesno=forms.BooleanField(label='Tick this to process all the sessions')
+	#my_yesno=forms.BooleanField(label='Tick this to process all the sessions')
 
 	#my_user=forms.CharField(max_length=20, validators= [validate_userid] )
 	#my_message = forms.CharField(widget=forms.Textarea, initial='')

@@ -268,8 +268,8 @@ def processsessions(request):
 				if len(wrds) >= 1 :
 					for w in wrds:
 						p=re.compile(regex_left+w+regex_right)
-						print regex_left+w+regex_right
-						print s.Comments.upper()
+						#print regex_left+w+regex_right
+						#print s.Comments.upper()
 						pmatch=p.search(mycomment)
 						#pdb.set_trace()
 						if pmatch :
@@ -293,7 +293,7 @@ def processsessions(request):
 								newse.save()
 							
 
-		my_message=' Sessions examined %d found $d  $d ' % count_sessions,count_found, count_new
+		my_message=' Sessions examined %d equipment examined %d\n\n\tequipment matches found %d\n\tequipment matches created %d\n\n\tlocation matches found ' % ( count_sessions , len(myequip) , count_found , count_new )
 
 		form = ProcessSessionsForm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
 	

@@ -10,14 +10,17 @@ from django.core.urlresolvers import reverse
 
 from django.contrib.auth.decorators import login_required
 
-from gps.forms import SessionForm, ImportSessions
+from gps.forms import SessionForm, ImportSessions, GetSailorID, ProcessSessionsForm
 from gps.models import UserProfile
-from gps.models import Session
+from gps.models import Session, Equipment, Location, SessionEquipment
 
 import csv,  urllib2, StringIO, re, sys
 
 from datetime import datetime
+
 from django.utils import timezone
+
+import pdb
 
 
 ##
@@ -64,7 +67,7 @@ def sessionform(request, pk):
 @login_required
 def importsessions(request):
 	
-	import pdb
+	mytest="TTTT"
 	userprofile=UserProfile.objects.get(user_id = request.user.id)
 
 	if request.method == 'GET':
@@ -180,3 +183,107 @@ def importsessions(request):
 @login_required
 def importsessionsresult(request,items_read, items_added, items_with_errors, items_found, userprofileid ):
 	return render_to_response('gps/importsessionsresult.html', {'request': request ,  'userprofileid': userprofileid ,'items_read':items_read , 'items_with_errors': items_with_errors , 'items_found': items_found , 'items_added': items_added  } , context_instance=RequestContext(request) )
+
+
+##
+##
+##
+
+@login_required
+def getsailorid(request):
+
+	userprofile=UserProfile.objects.get(user_id = request.user.id)
+
+	if request.method == 'GET':
+		form = GetSailorID(initial={'my_message':getsailoridmymessage})
+		
+	
+	else:
+		# A POST request: Handle Request here
+		form = GetSailorID(request.POST) # Bind data from request.POST into a PostForm
+		pdb.set_trace()
+		
+		#do all the work here
+
+
+		url="http://gpsteamchallenge.com.au/sailor_session/mydata/" + str(userprofile.gpstc_sailor_id)  
+
+		print url
+		pdb.set_trace()
+		try: 
+			webstream = urllib2.urlopen(url)
+			data=webstream.read().decode('utf-8')
+		except:
+			print "oops an error occurred opening the url"
+			data=""
+
+		fdata=StringIO.StringIO(data)
+		print data
+		
+		pdb.set_trace()
+		#ValidationError(_('Validation error'),code='invalid')
+
+		return HttpResponseRedirect( reverse('getsailorid' ) )
+
+		#return HttpResponseRedirect( reverse('getsailorid', kwargs={'userprofileid': userprofile.gpstc_sailor_id, } ) )
+
+	return render_to_response('gps/getsailorid.html',{ 'form': form, 'user': request.user , 'userprofile':userprofile }, context_instance=RequestContext(request) )
+
+
+
+
+##
+##
+##
+
+
+
+@login_required
+def processsessions(request):
+
+	userprofile=UserProfile.objects.get(user_id = request.user.id)
+
+	if request.method == 'GET':
+		pdb.set_trace()
+		
+		my_message=''
+		myequip=Equipment.objects.filter(user_id = request.user.id )
+		
+        	for s in Session.objects.filter(user_id = request.user.id ): 
+			#my_message=my_message + '\n' +  s.Comments
+			for e in myequip:
+				#print e.KeyWords
+				wrds=e.KeyWords.upper().split(';')
+				if len(wrds) >= 1 :
+					for w in wrds:
+						if w in s.Comments.upper():
+							#pdb.set_trace()
+							try:
+								got1=SessionEquipment.objects.get(Session_id=s.id , Equipment_id=e.id)
+							except SessionEquipment.MultipleObjectsReturned:
+								pass
+							
+							except SessionEquipment.DoesNotExist:
+								print w,' created ',s,e
+								newse=SessionEquipment()
+								newse.Session_id=s.id
+								newse.Equipment_id=e.id
+								newse.save()
+
+		
+		form = ProcessSessionsForm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
+	
+		
+	else:
+		# A POST request: Handle Request here
+
+		form = ProcessSessionsForm(request.POST)
+		print form.is_valid()
+		#	return HttpResponseRedirect( '..' ) 
+
+
+
+	return render_to_response('gps/processsessions.html', {'form': form , 'user': request.user , 'userprofile':userprofile  } , context_instance=RequestContext(request) )
+
+
+

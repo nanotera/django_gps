@@ -11,8 +11,12 @@ from django import forms
 import pdb
 
 
-
-admin.site.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+	list_filter = ['Country','State']
+	list_display = ('Name','Description','Country','State')
+	list_display_links=list_display
+	
+admin.site.register(Location,LocationAdmin)
 
 class EquipmentAdmin(admin.ModelAdmin):
 	##
@@ -31,6 +35,8 @@ class EquipmentAdmin(admin.ModelAdmin):
 		
 			qs =User.objects.all().filter(id=kwargs['request'].user.id)
 			kwargs['queryset']=qs
+			field.default=1
+			#pdb.set_trace()
 		return super(EquipmentAdmin, self).formfield_for_dbfield(field, **kwargs)
 
 
@@ -64,8 +70,12 @@ class SessionAdmin(admin.ModelAdmin):
 		
 	]
 	inlines = [SessionEquipmentInline]
-	list_filter = ['Location']
-
+	date_hierarchy = 'SessionDate'
+	list_filter = ['Location','SessionDate']
+	list_display = ('SessionDate','NickName','Two_Second_Peak','Five_X_10_Second_Average','Alpha_Racing_500m','Nautical_Mile','One_Hour','Distance_Travelled','Location','Comments' )
+	list_display_links=list_display
+	search_fields = ['Comments']
+	readonly_fields =('FullName', 'SessionDate','NickName')
 	##
 	## return only session records owned by this user
 	##

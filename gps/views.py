@@ -244,33 +244,46 @@ def processsessions(request):
 	userprofile=UserProfile.objects.get(user_id = request.user.id)
 
 	if request.method == 'GET':
-		pdb.set_trace()
+		#pdb.set_trace()
 		
 		my_message=''
+		regex_left=r'([\s\W]|^)'
+		regex_right =r'([\s\W\n]|$)'
+
 		myequip=Equipment.objects.filter(user_id = request.user.id )
 		
         	for s in Session.objects.filter(user_id = request.user.id ): 
 			#my_message=my_message + '\n' +  s.Comments
+			mycomment=s.Comments.upper()
 			for e in myequip:
 				#print e.KeyWords
 				wrds=e.KeyWords.upper().split(';')
 				if len(wrds) >= 1 :
 					for w in wrds:
-						if w in s.Comments.upper():
-							#pdb.set_trace()
+						p=re.compile(regex_left+w+regex_right)
+						print regex_left+w+regex_right
+						print s.Comments.upper()
+						pmatch=p.search(mycomment)
+						#pdb.set_trace()
+						if pmatch :
+							
 							try:
 								got1=SessionEquipment.objects.get(Session_id=s.id , Equipment_id=e.id)
+								my_message=my_message+ w + ' found '+ mycomment + '/n'
+								
 							except SessionEquipment.MultipleObjectsReturned:
+								my_message=my_message+ w + ' multiple found '+ mycomment + '/n'
 								pass
 							
 							except SessionEquipment.DoesNotExist:
-								print w,' created ',s,e
+								my_message=my_message+ w + ' created '+ mycomment + '/n'
 								newse=SessionEquipment()
 								newse.Session_id=s.id
 								newse.Equipment_id=e.id
 								newse.save()
+							
 
-		
+			
 		form = ProcessSessionsForm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
 	
 		

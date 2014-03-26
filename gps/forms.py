@@ -10,7 +10,7 @@ import pdb
 ##
 ##
 ##
-myglobal_message=''
+#global myglobal_message=''
 
 class ProcessSessionsForm(forms.Form):
 
@@ -19,7 +19,7 @@ class ProcessSessionsForm(forms.Form):
 		my_message=''
 		#if (value=='nomessage'):
 		
-		myglobal_message=my_message
+		#global myglobal_message=my_message
 		#raise ValidationError(' %s look at that output from validator.' % value )
 
 
@@ -37,18 +37,14 @@ class ProcessSessionsForm(forms.Form):
 	#my_yesno=forms.BooleanField(label='Tick this to process all the sessions', validators= [validate_my_message])
 	
 
-	def clean(self):
+	def not_clean(self):
 		pdb.set_trace()
 		cleaned_data = super(ProcessSessionsForm, self).clean()
 		userid=cleaned_data.get('my_user')
 		print userid
 		import pprint
 		pprint.pprint(cleaned_data)
-		my_message=''
-        	for s in Session.objects.filter(user_id = userid ): 
-			my_message=my_message + '\n' +  s.NickName
-		
-		
+	
 		print my_message    
 		cleaned_data['my_message']=my_message
 		#self.data['my_message']=my_message

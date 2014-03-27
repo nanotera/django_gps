@@ -420,6 +420,7 @@ div.actions ul {
 
 /*
 
+
 #content table {
 	background: #fff;
 	border:1px solid #ccc;
@@ -543,6 +544,7 @@ fieldset fieldset div {
 	clear: left;
 	margin: 0 20px;
 }
+
 form div {
 	clear: both;
 	margin-bottom: 0;
@@ -562,21 +564,35 @@ form div.submit {
 	margin-top: 5px;
 	margin-left: 140px;
 }
+
+
 label {
-	display: block;
 	font-size: 110%;
+	padding-left: 20px;
 	padding-right: 20px;
 }
+
+
+
 input, textarea {
 	clear: both;
 	font-size: 100%;
 	font-family: "frutiger linotype", "lucida grande", "verdana", sans-serif;
-	padding: 0px;
+	padding: 5px;
 }
+
 
 textarea {
 	width: 100%;
 }
+
+/* Commented out as boxes didnt line up 
+
+
+
+*/
+
+
 
 select {
 	clear: both;
@@ -590,27 +606,50 @@ option {
 	font-size: 120%;
 	padding: 0 3px;
 }
+
+
+
+
+/*   commented out as didnt want it
+
+
 input[type=checkbox] {
 	clear: left;
 	float: left;
 	margin: 0px 6px 7px 2px;
 	width: auto;
 }
+
+
+
+
 input[type=radio] {
 	float:left;
 	width:auto;
 	margin: 0 3px 7px 0;
 }
+
+
+
+
 div.radio label {
 	margin: 0 0 6px 20px;
 }
+
+
+*/
+
+
+
 input[type=submit] {
-	display: inline;
-	font-size: 110%;
+	display: inline
+	font-size: 120%;
 	padding: 2px 5px;
 	width: auto;
-	vertical-align: bottom;
+
 }
+
+
 
 /* Notices and Errors */
 div.message {
@@ -812,4 +851,99 @@ div.code-coverage-results span.result-good {
 	margin-left: 2px;
 	margin-right: 10px;
 	margin-bottom: 10px;
+}
+/* 
+
+stolen from admin base.css form error templates
+
+*/
+
+/* MESSAGES & ERRORS */
+
+ul.messagelist {
+    padding: 0 0 5px 0;
+    margin: 0;
+}
+
+ul.messagelist li {
+    font-size: 12px;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    margin: 0 0 3px 0;
+    border-bottom: 1px solid #ddd;
+    color: #666;
+    background: #ffc url(../img/icon_success.gif) 5px .3em no-repeat;
+}
+
+ul.messagelist li.warning{
+    background-image: url(../img/icon_alert.gif);
+}
+
+ul.messagelist li.error{
+    background-image: url(../img/icon_error.gif);
+}
+
+.errornote {
+    font-size: 12px !important;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    margin: 0 0 3px 0;
+    border: 1px solid red;
+    color: red;
+    background: #ffc url(../img/icon_error.gif) 5px .3em no-repeat;
+}
+
+ul.errorlist {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.errorlist li {
+    font-size: 12px !important;
+    display: block;
+    padding: 4px 5px 4px 25px;
+    margin: 0 0 3px 0;
+    border: 1px solid red;
+    color: white;
+    background: red url(../img/icon_alert.gif) 5px .3em no-repeat;
+}
+
+.errorlist li a {
+ 	color: white;
+    text-decoration: underline;
+}
+
+td ul.errorlist {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+td ul.errorlist li {
+    margin: 0 !important;
+}
+
+.errors {
+    background: #ffc;
+}
+
+.errors input, .errors select, .errors textarea {
+    border: 1px solid red;
+}
+div.system-message {
+    background: #ffc;
+    margin: 10px;
+    padding: 6px 8px;
+    font-size: .8em;
+}
+
+div.system-message p.system-message-title {
+    padding: 4px 5px 4px 25px;
+    margin: 0;
+    color: red;
+    background: #ffc url(../img/icon_error.gif) 5px .3em no-repeat;
+}
+
+.description {
+    font-size: 12px;
+    padding: 5px 0 0 12px;
 }

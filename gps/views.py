@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 
 from django.contrib.auth.decorators import login_required
 
-from gps.forms import SessionForm, ImportSessions, GetSailorID, ProcessSessionsForm
+from gps.forms import SessionForm, ImportSessions, GetSailorID, ProcessSessionsForm,  ProcessSessionsFormConfirm
 from gps.models import UserProfile
 from gps.models import Session, Equipment, Location, SessionEquipment
 
@@ -32,11 +32,9 @@ from gps.tables  import SessionTable
 
 @login_required
 def SessionsAsTable(request):
-    #import pdb
-    #pdb.set_trace()
-    table = SessionTable(Session.objects.filter(user_id = request.user.id ).values('FullName','SessionDate','Two_Second_Peak','Five_X_10_Second_Average','Alpha_Racing_500m','Nautical_Mile','One_Hour'))
-    RequestConfig(request).configure(table)
-    return render(request, 'gps/session_list.html', {'table': table})
+	table = SessionTable(Session.objects.filter(user_id = request.user.id ).values('FullName','SessionDate','Two_Second_Peak','Five_X_10_Second_Average','Alpha_Racing_500m','Nautical_Mile','One_Hour'))
+	RequestConfig(request).configure(table)
+	return render(request, 'gps/session_list.html', {'table': table})
 
 ##
 ##
@@ -61,13 +59,49 @@ def sessionform(request, pk):
 	return render_to_response('gps/session_form.html',{ 'form': form }, context_instance=RequestContext(request) )
 
 ##
+## takes one csv line, user_id,  a regular expression for cleanup of comments and returns a Session object.
+##
+def process_line(my_line,my_user,  regexp):
+
+
+	try:
+
+		newsess=Session()
+		newsess.user_id=my_user
+		newsess.FullName=my_line[0]
+		newsess.NickName=my_line[1]
+		print my_line[2]
+		newsess.SessionDate=datetime.strptime(my_line[2],'%d %b %Y')
+		#print newsess.SessionDate
+		newsess.Team=my_line[3]
+		newsess.Age_Division=my_line[4]
+		newsess.Two_Second_Peak=float(my_line[5])
+		newsess.Two_Second_Peak_Method=my_line[6]
+		newsess.Five_X_10_Second_Average=float(my_line[7])
+		newsess.Five_X_10_Second_Average_Method=my_line[8]
+		newsess.One_Hour=float(my_line[9])
+		newsess.One_Hour_Method=my_line[10]
+		newsess.Alpha_Racing_500m=float(my_line[11])
+		newsess.Alpha_Racing_500m_Method=my_line[12]
+		newsess.Nautical_Mile=float(my_line[13])
+		newsess.Nautical_Mile_Method=my_line[14]
+		newsess.Distance_Travelled=float(my_line[15])
+		newsess.Distance_Travelled_Method=my_line[16]
+		# convert comment by removing html codes (should probably do ' chars as well)
+		newsess.Comments=regexp.sub('',my_line[17].replace('&nbsp;',''))
+	
+	except:
+
+		newsess=None
+
+	return newsess
+##
 ##
 ##
 
 @login_required
 def importsessions(request):
 	
-	mytest="TTTT"
 	userprofile=UserProfile.objects.get(user_id = request.user.id)
 
 	if request.method == 'GET':
@@ -76,83 +110,55 @@ def importsessions(request):
 		# A POST request: Handle Request here
 		form = ImportSessions(request.POST) # Bind data from request.POST into a PostForm
 			
-		
-		#do all the work here
-
-		repat=re.compile('<.*?>')
-
-		# test if user already has any sessions, if so just read in the current years ones.
-		currentyear= timezone.now().year
-		yearfilter="&year=" + str(currentyear)
+		if form.is_valid():
+			#pass
+			#pdb.set_trace()
+			#do all the work here
+			# test if user already has any sessions, if so just read in the current years ones.
+			currentyear= timezone.now().year
+			yearfilter="&year=" + str(currentyear)
 	
-		try: 
-			s=Session.objects.get(user_id = request.user.id )
-			# 1 record found - thats enough
-			
-		except Session.MultipleObjectsReturned:
-			# more than 1 found - also enough
-			s=""
-			
-		except Session.DoesNotExist:
-			# only case where we get everthing.
-			yearfilter=""
+			try: 
+				s=Session.objects.get(user_id = request.user.id )
+				# 1 record found - thats enough
+			except Session.MultipleObjectsReturned:
+				# more than 1 found - also enough
+				pass
+			except Session.DoesNotExist:
+				# only case where we get everthing.
+				yearfilter=""
 
-		url="http://www.gpsteamchallenge.com.au/sailor_session/export_session_csv?sailor_id=" + str(userprofile.gpstc_sailor_id) + yearfilter 
-		print url
+			url="http://www.gpsteamchallenge.com.au/sailor_session/export_session_csv?sailor_id=" + str(userprofile.gpstc_sailor_id) + yearfilter 
+			#print url
+			try: 
+				ftpstream = urllib2.urlopen(url)
+				data=ftpstream.read().decode('utf-8')
+			except:
+				print "oops an error occurred opening the url"
+				# Do a form error here
+				pdb.set_trace()
+				form._errors['']= form.error_class('error added')
+				data=""
 
-		try: 
-			ftpstream = urllib2.urlopen(url)
-			data=ftpstream.read().decode('utf-8')
-		except:
-			print "oops an error occurred opening the url"
-			data=""
-
-		fdata=StringIO.StringIO(data)
-		csvfile=csv.reader(fdata)
-		readcnt=0
-		errcnt=0
-		impcnt=0
-		fndcnt=0
+			# move data to a memory file as reading into csv fails direct from url.
+			fdata=StringIO.StringIO(data)
+			csvfile=csv.reader(fdata)
+			readcnt=0
+			errcnt=0
+			impcnt=0
+			fndcnt=0
+			repat=re.compile('<.*?>')
 		
-		for r in csvfile:
-			if ( r[0]=="FullName" ):
-				print "firstline found ignore this one."
-			else:
-				try: 
-					newsess=Session()
-					newsess.user_id=request.user.id
-					newsess.FullName=r[0]
-					newsess.NickName=r[1]
-					print r[2]
-					newsess.SessionDate=datetime.strptime(r[2],'%d %b %Y')
-
-					print newsess.SessionDate
-					newsess.Team=r[3]
-					newsess.Age_Division=r[4]
-					newsess.Two_Second_Peak=float(r[5])
-					newsess.Two_Second_Peak_Method=r[6]
-					newsess.Five_X_10_Second_Average=float(r[7])
-					newsess.Five_X_10_Second_Average_Method=r[8]
-					newsess.One_Hour=float(r[9])
-					newsess.One_Hour_Method=r[10]
-					newsess.Alpha_Racing_500m=float(r[11])
-					newsess.Alpha_Racing_500m_Method=r[12]
-					newsess.Nautical_Mile=float(r[13])
-					newsess.Nautical_Mile_Method=r[14]
-					newsess.Distance_Travelled=float(r[15])
-					newsess.Distance_Travelled_Method=r[16]
-					newsess.Comments=repat.sub('',r[17].replace('&nbsp;',''))
-
-					readcnt+=1
-					err=0
-				except :
-					print "oops issue in converting csv", sys.exc_info()[0]
-					err=1
-					errcnt+=1
-
-				if (err == 0 ) :
-					try:
-						#search for existing record
+		
+			for r in csvfile:
+				if ( r[0]=="FullName" ):
+					print "firstline found ignore this one."
+				else:
+					### process the csv line in function.
+					newsess=process_line(r, request.user.id, repat)
+					####
+					if newsess != None : 
+						readcnt+=1
 						try:
 							ifexist=Session.objects.get(user_id=newsess.user_id, SessionDate=newsess.SessionDate)
 							fndcnt+=1
@@ -161,18 +167,21 @@ def importsessions(request):
 						except Session.DoesNotExist:
 							newsess.save()
 							impcnt+=1
-					except:
+						except: # catch any other error here
+							errcnt+=1
+
+					else :
+						print "oops issue in converting csv", sys.exc_info()[0]
 						errcnt+=1
-					
 				
-		print readcnt
-		#pdb.set_trace()
-		#return HttpResponseRedirect(('ImportSessonsResult'))
-		#return HttpResponseRedirect(reverse('importsessionsresult', kwargs={'form': form, 'user': request.user , 'userprofile':userprofile, 'items_read':readcnt, 'items_with_errors':errcnt, 'items_found':fndcnt, 'items_added':impcnt }))
-		return HttpResponseRedirect( reverse('importsessionsresult', kwargs={'userprofileid': userprofile.gpstc_sailor_id, 'items_read': readcnt, 'items_with_errors': errcnt, 'items_found': fndcnt, 'items_added': impcnt, } ) )
+			#print 'records read %d ' % ( readcnt )
+			#pdb.set_trace()
+			return HttpResponseRedirect( reverse('importsessionsresult', kwargs={'userprofileid': userprofile.gpstc_sailor_id, 'items_read': readcnt, 'items_with_errors': errcnt, 'items_found': fndcnt, 'items_added': impcnt, } ) )
 
-		#return render_to_response('gps\importsessionsresult.html',{ 'form': form, 'user': request.user , 'userprofile':userprofile, 'items_read':readcnt, 'items_with_errors':errcnt, 'items_found':fndcnt, 'items_added':impcnt }, context_instance=RequestContext(request) )
-
+		else:
+			print 'form invalid go round again'
+			#pdb.set_trace()
+		
 	return render_to_response('gps/importsessions.html',{ 'form': form, 'user': request.user , 'userprofile':userprofile }, context_instance=RequestContext(request) )
 
 
@@ -236,64 +245,142 @@ def getsailorid(request):
 ##
 ##
 
+@login_required
+def processsessionsconfirm( request ):
+	userprofile=UserProfile.objects.get(user_id = request.user.id)
+	
+	#print request.method
+	#pdb.set_trace()
+	my_message='Confirm processing of sessions for user :'
+	
+	if request.method == 'GET':
+		
+		form = ProcessSessionsFormConfirm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
+	
+		
+	else:
+		# A POST request: Handle Request here
+		form = ProcessSessionsFormConfirm(request.POST)
+		if form.is_valid():
+			print request.POST
+			form=ProcessSessionsForm()
+			return render_to_response('gps/processsessions.html', {'form': form ,'user': request.user , 'userprofile':userprofile  } )
+	
+			return HttpResponseRedirect( 'processsessions' ) 
+
+
+	return render_to_response('gps/processsessionsconfirm.html', {'form': form , 'user': request.user , 'userprofile':userprofile  } , context_instance=RequestContext(request) )
+
+
+##
+##
+##
+def processsessionsequipment(my_session,my_equipment):
+	count={'found':0,'new':0}
+	regex_left=r'([\s\W]|^)'
+	regex_right =r'([\s\W\n]|$)'
+
+	mycomment=my_session.Comments.upper()
+	for e in my_equipment:
+		#print e.KeyWords
+		wrds=e.KeyWords.upper().split(';')
+		if len(wrds) >= 1 :
+			for w in wrds:
+				p=re.compile(regex_left+w+regex_right)
+				#print regex_left+w+regex_right
+				pmatch=p.search(mycomment)
+				if pmatch :
+				
+					try:
+						got1=SessionEquipment.objects.get(Session_id=my_session.id , Equipment_id=e.id)
+						count['found']+=1
+					
+					except SessionEquipment.MultipleObjectsReturned:
+						count['found']+=1
+						pass
+				
+					except SessionEquipment.DoesNotExist:
+						count['new']+=1
+						newse=SessionEquipment()
+						newse.Session_id=my_session.id
+						newse.Equipment_id=e.id
+						newse.save()
+				
+	return count
+
+##
+##
+##
+
+def processsessionslocation(my_session):
+	count={'locfound':0,'locnew':0}
+	print my_session.Location_id
+	if my_session.Location_id == None :
+		regex_left=r'([\s\W]|^)'
+		regex_right =r'([\s\W\n]|$)'
+		#pdb.set_trace()
+		mycomment=my_session.Comments.upper()
+		for e in Location.objects.all():
+			#print e.KeyWords
+			wrds=e.KeyWords.upper().split(';')
+			if len(wrds) >= 1 :
+				for w in wrds:
+					p=re.compile(regex_left+w+regex_right)
+					#print regex_left+w+regex_right
+					pmatch=p.search(mycomment)
+					if pmatch :
+						print 'found', w
+						my_session.Location_id=e.id
+						my_session.save()
+						
+					
+						
+						count['locnew']+=1
+						return count
+	else:
+		count['locfound']+=1
+					
+	return count
+##
+##
+##
+##
 
 
 @login_required
 def processsessions(request):
 
 	userprofile=UserProfile.objects.get(user_id = request.user.id)
-
+	
 	print request.method
-	pdb.set_trace()
+	#pdb.set_trace()
 	if request.method == 'GET':
 		
 		my_message=''
-		regex_left=r'([\s\W]|^)'
-		regex_right =r'([\s\W\n]|$)'
 
 		myequip=Equipment.objects.filter(user_id = request.user.id )
 
-		count_sessions=0
-		count_found=0
-		count_new=0
+		mycount={'sessions':0,'sessionsaltered':0,'found':0,'new':0,'locsessionsaltered':0,'locfound':0,'locnew':0}
 
-		
         	for s in Session.objects.filter(user_id = request.user.id ): 
-			count_sessions+=1
-			#my_message=my_message + '\n' +  s.Comments
-			mycomment=s.Comments.upper()
-			for e in myequip:
-				#print e.KeyWords
-				wrds=e.KeyWords.upper().split(';')
-				if len(wrds) >= 1 :
-					for w in wrds:
-						p=re.compile(regex_left+w+regex_right)
-						#print regex_left+w+regex_right
-						#print s.Comments.upper()
-						pmatch=p.search(mycomment)
-						#pdb.set_trace()
-						if pmatch :
-							
-							try:
-								got1=SessionEquipment.objects.get(Session_id=s.id , Equipment_id=e.id)
-								#my_message=my_message+ w + ' found '+ s.Comments + '/n'
-								count_found+=1
-								
-							except SessionEquipment.MultipleObjectsReturned:
-								#my_message=my_message+ w + ' multiple found '+ s.Comments + '/n'
-								count_found+=1
-								pass
-							
-							except SessionEquipment.DoesNotExist:
-								#my_message=my_message+ w + ' created '+ s.Comments + '/n'
-								count_new+=1
-								newse=SessionEquipment()
-								newse.Session_id=s.id
-								newse.Equipment_id=e.id
-								newse.save()
-							
 
-		my_message=' Sessions examined %d equipment examined %d\n\n\tequipment matches found %d\n\tequipment matches created %d\n\n\tlocation matches found ' % ( count_sessions , len(myequip) , count_found , count_new )
+			mycount['sessions']+=1
+
+			scount=processsessionsequipment(s,myequip)
+			mycount['found']+=scount['found']
+			mycount['new']+=scount['new']
+			if scount['new'] > 0:
+				mycount['sessionsaltered']+=1
+
+
+			scount=processsessionslocation(s)
+			mycount['locfound']+=scount['locfound']
+			mycount['locnew']+=scount['locnew']
+			
+
+
+
+		my_message='Sessions examined %d altered %d equipment examined %d\n\n\tequipment matches found %d\n\tequipment matches created %d\n\n\tlocation matches found %d added %d.' % ( mycount['sessions'] , mycount['sessionsaltered'], len(myequip) , mycount['found'] , mycount['new'], mycount['locfound'], mycount['locnew'] )
 
 		form = ProcessSessionsForm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
 	
@@ -302,7 +389,7 @@ def processsessions(request):
 		# A POST request: Handle Request here
 		#form = ProcessSessionsForm(request.POST)
 		#print form.is_valid()
-		print request.POST
+		#print request.POST
 		return HttpResponseRedirect( '..' ) 
 
 

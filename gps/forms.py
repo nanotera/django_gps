@@ -29,7 +29,7 @@ class ProcessSessionsForm(forms.Form):
 
 
 	#my_user=forms.CharField(max_length=20 )
-	my_message = forms.CharField(widget=forms.Textarea, label='Results of processing',initial='')
+	my_message = forms.CharField(widget=forms.Textarea, label='',initial='')
 	#my_yesno=forms.BooleanField(label='Tick this to process all the sessions')
 
 	#my_user=forms.CharField(max_length=20, validators= [validate_userid] )
@@ -58,12 +58,32 @@ class ProcessSessionsForm(forms.Form):
 ##
 ##
 ##
+class ProcessSessionsFormConfirm(forms.Form):
 
+	pdb.set_trace()
+	#my_user=forms.CharField(max_length=20 )
+	#my_message = forms.CharField(widget=forms.Textarea, label='Important information.',initial='')
+	my_country=forms.CharField(label='Assume all locations in this country:',initial='AU')
+	my_state=forms.CharField(label='Assume all locations in this state:',initial='WA')
+
+	my_yesno=forms.BooleanField(label='Tick this to process all the sessions')
+	
+	#my_user=forms.CharField(max_length=20, validators= [validate_userid] )
+	#my_message = forms.CharField(widget=forms.Textarea, initial='')
+	#my_yesno=forms.BooleanField(label='Tick this to process all the sessions', validators= [validate_my_message])
+	
+
+
+##
+##
+##
 
 class ImportSessions(forms.Form):
 
-	content=forms.CharField(max_length=20)
-	#	file =forms.FileField()
+	#content=forms.CharField(max_length=20)
+	#file =forms.FileField()
+	eula_yes=forms.BooleanField(label='By ticking this I acknowledge that I am authorised to read this sailors data from the GPSTSC web site:')
+
 	
 ##
 ##

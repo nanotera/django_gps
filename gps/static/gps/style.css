@@ -324,14 +324,31 @@ li.folder ul{
 	margin: 5px;
 }
 
-.results_table td {
+.results_table th {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 12px;
+	font-size: 14px;
+	font-style: bold;
 	border-color: #13587F;
 	border-width: 1px;
 	border-style: solid;
 	padding: 2px;
 	color: #000000;
+	text-align: right
+}
+
+.results_table  {
+	width:	600px;
+	align: center;
+}
+.results_table td {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	border-color: #13587F;
+	border-width: 1px;
+	border-style: solid;
+	padding: 2px;
+	color: #000000;
+	width: 50px;
 }
 
 .results_headings td{

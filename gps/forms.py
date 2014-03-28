@@ -60,12 +60,14 @@ class ProcessSessionsForm(forms.Form):
 ##
 class ProcessSessionsFormConfirm(forms.Form):
 
-	pdb.set_trace()
+	#pdb.set_trace()
 	#my_user=forms.CharField(max_length=20 )
 	#my_message = forms.CharField(widget=forms.Textarea, label='Important information.',initial='')
-	my_country=forms.CharField(label='Assume all locations in this country:',initial='AU')
-	my_state=forms.CharField(label='Assume all locations in this state:',initial='WA')
-
+	my_process_equipment=forms.BooleanField(label='Tick this to process sessions and equipment',initial=True, required=False )
+	my_process_location=forms.BooleanField(label='Tick this to process sessions and locations',initial=True, required=False)
+	my_country=forms.CharField(label='Assume all locations in this country:',initial='AU', required=False)
+	my_state=forms.CharField(label='Assume all locations in this state:',initial='WA', required=False)
+	
 	my_yesno=forms.BooleanField(label='Tick this to process all the sessions')
 	
 	#my_user=forms.CharField(max_length=20, validators= [validate_userid] )

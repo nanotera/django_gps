@@ -186,7 +186,7 @@ def importsessions(request):
 
 
 ##
-##
+##	importsessionsresult = displays message regarding import 
 ##
 
 @login_required
@@ -242,7 +242,7 @@ def getsailorid(request):
 
 
 ##
-##
+##	processsessionsconfirm - asked user to process sessions, allowed to select options. 
 ##
 
 @login_required
@@ -254,26 +254,25 @@ def processsessionsconfirm( request ):
 	my_message='Confirm processing of sessions for user :'
 	
 	if request.method == 'GET':
-		
 		form = ProcessSessionsFormConfirm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
-	
-		
+
 	else:
 		# A POST request: Handle Request here
 		form = ProcessSessionsFormConfirm(request.POST)
 		if form.is_valid():
-			print request.POST
-			form=ProcessSessionsForm()
-			return render_to_response('gps/processsessions.html', {'form': form ,'user': request.user , 'userprofile':userprofile  } )
-	
-			return HttpResponseRedirect( 'processsessions' ) 
+			request.session['my_process_equipment']=form['my_process_equipment'].value()
+			request.session['my_process_location']=form['my_process_location'].value()
+			request.session['my_country']=form['my_country'].value()
+			request.session['my_country']=form['my_country'].value()
+			request.session['my_state']=form['my_state'].value()
+			return HttpResponseRedirect( 'processsessions'  ) 
 
 
 	return render_to_response('gps/processsessionsconfirm.html', {'form': form , 'user': request.user , 'userprofile':userprofile  } , context_instance=RequestContext(request) )
 
 
 ##
-##
+## 	processsessionsequipment - do keyword lookup of equipment in session comments
 ##
 def processsessionsequipment(my_session,my_equipment):
 	count={'found':0,'new':0}
@@ -309,18 +308,32 @@ def processsessionsequipment(my_session,my_equipment):
 	return count
 
 ##
-##
+##	processsessionslocation - do keyword lookup of Locations in session comments
 ##
 
-def processsessionslocation(my_session):
-	count={'locfound':0,'locnew':0}
+def processsessionslocation(my_session,my_country, my_state ):
+	count={'locfound':0,'locnew':0,'locchecked':0,'locations':0}
 	print my_session.Location_id
 	if my_session.Location_id == None :
 		regex_left=r'([\s\W]|^)'
 		regex_right =r'([\s\W\n]|$)'
-		#pdb.set_trace()
+
 		mycomment=my_session.Comments.upper()
-		for e in Location.objects.all():
+		count['locchecked']+=1
+
+		if my_country=='':
+			if my_state=='':
+				my_locs=Location.objects.all()
+			else:
+				my_locs=Location.objects.filter(State=my_state )
+		else:
+			if my_state=='':
+				my_locs=Location.objects.filter( Country=my_country )
+			else:
+				my_locs=Location.objects.filter( Country=my_country , State=my_state )
+
+		count['locations']=my_locs.count()
+		for e in my_locs:
 			#print e.KeyWords
 			wrds=e.KeyWords.upper().split(';')
 			if len(wrds) >= 1 :
@@ -332,18 +345,16 @@ def processsessionslocation(my_session):
 						print 'found', w
 						my_session.Location_id=e.id
 						my_session.save()
-						
-					
-						
 						count['locnew']+=1
 						return count
 	else:
 		count['locfound']+=1
 					
 	return count
+
+
 ##
-##
-##
+##	processsessions - checks sessions for included equipment and locations.
 ##
 
 
@@ -352,36 +363,41 @@ def processsessions(request):
 
 	userprofile=UserProfile.objects.get(user_id = request.user.id)
 	
-	print request.method
+	#print request.method
 	#pdb.set_trace()
+	mycount={'sessions':0,'sessionsaltered':0,'found':0,'new':0,'locsessionsaltered':0,'locfound':0,'locnew':0,'locations':0,'locchecked':0, 'equipment':0}
+		
+
 	if request.method == 'GET':
 		
 		my_message=''
-
-		myequip=Equipment.objects.filter(user_id = request.user.id )
-
-		mycount={'sessions':0,'sessionsaltered':0,'found':0,'new':0,'locsessionsaltered':0,'locfound':0,'locnew':0}
-
-        	for s in Session.objects.filter(user_id = request.user.id ): 
-
-			mycount['sessions']+=1
-
-			scount=processsessionsequipment(s,myequip)
-			mycount['found']+=scount['found']
-			mycount['new']+=scount['new']
-			if scount['new'] > 0:
-				mycount['sessionsaltered']+=1
-
-
-			scount=processsessionslocation(s)
-			mycount['locfound']+=scount['locfound']
-			mycount['locnew']+=scount['locnew']
+		if not (request.session['my_process_equipment'] or request.session['my_process_location']):
+			my_message='Neither Equipment or Location selected to be processed, Nothing to do !'
+		else:
+			myequip=Equipment.objects.filter(user_id = request.user.id )
+			mycount['equipment'], len(myequip)
+	        	for s in Session.objects.filter(user_id = request.user.id ): 
+				mycount['sessions']+=1
+				if request.session['my_process_equipment']:
+					scount=processsessionsequipment(s,myequip)
+					mycount['found']+=scount['found']
+					mycount['new']+=scount['new']
+					if scount['new'] > 0:
+						mycount['sessionsaltered']+=1
+				if request.session['my_process_location']:
+					scount=processsessionslocation(s, request.session['my_country'],request.session['my_state'])
+					mycount['locfound']+=scount['locfound']
+					mycount['locnew']+=scount['locnew']
+					mycount['locchecked']+=scount['locchecked']
+					if mycount['locations'] < scount['locations']:
+						mycount['locations']=scount['locations']
+					#print scount
+					#pdb.set_trace()
+ 			
 			
-
-
-
-		my_message='Sessions examined %d altered %d equipment examined %d\n\n\tequipment matches found %d\n\tequipment matches created %d\n\n\tlocation matches found %d added %d.' % ( mycount['sessions'] , mycount['sessionsaltered'], len(myequip) , mycount['found'] , mycount['new'], mycount['locfound'], mycount['locnew'] )
-
+			my_message='Sessions examined %d altered %d equipment examined %d\n\n\tequipment matches found %d\n\tequipment matches created %d\n\n\tlocation matches already with locations %d found and added %d checked %d locations examined %d .' % ( mycount['sessions'] , mycount['sessionsaltered'], len(myequip) , mycount['found'] , mycount['new'], mycount['locfound'], mycount['locnew'], mycount['locchecked'], mycount['locations'] )
+		
+		request.session['mycount']=mycount
 		form = ProcessSessionsForm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
 	
 		

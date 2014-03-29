@@ -329,23 +329,29 @@ li.folder ul{
 	font-size: 14px;
 	font-style: bold;
 	border-color: #13587F;
-	border-width: 1px;
-	border-style: solid;
+	border-width: #1px;
+	border-style: #solid;
 	padding: 2px;
 	color: #000000;
 	text-align: right
 }
 
 .results_table  {
-	width:	600px;
+	width:	500px;
 	align: center;
+	margin-left: 20px;
+	margin-right: auto;
+	border-color: #13587F;
+	border-width: 1px;
+	border-style: solid;
+	
 }
 .results_table td {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 14px;
 	border-color: #13587F;
 	border-width: 1px;
-	border-style: solid;
+	border-style: xsolid;
 	padding: 2px;
 	color: #000000;
 	width: 50px;

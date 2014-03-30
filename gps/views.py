@@ -265,7 +265,10 @@ def processsessionsconfirm( request ):
 			request.session['my_country']=form['my_country'].value()
 			request.session['my_country']=form['my_country'].value()
 			request.session['my_state']=form['my_state'].value()
-			return HttpResponseRedirect( 'processsessions'  ) 
+			request.session['my_message']='Procession sessions'
+			request.session['my_started']=False
+
+			return HttpResponseRedirect( 'processing_wait'  ) 
 
 
 	return render_to_response('gps/processsessionsconfirm.html', {'form': form , 'user': request.user , 'userprofile':userprofile  } , context_instance=RequestContext(request) )
@@ -366,10 +369,16 @@ def processsessions(request):
 	#print request.method
 	#pdb.set_trace()
 	mycount={'sessions':0,'sessionsaltered':0,'found':0,'new':0,'locsessionsaltered':0,'locfound':0,'locnew':0,'locations':0,'locchecked':0, 'equipment':0}
-		
+	
+	# check for "started" value in session, will be set to False by calling form. if it has already been "used" then dont do work, to avoid back button redoing processing and also avoids calling process form directly.
+	if 'my_started' in request.session:
+		mstarted=request.session['my_started']
+	else:
+		mstarted=True
 
-	if request.method == 'GET':
+	if not mstarted and request.method == 'GET':
 		
+		request.session['my_started']=True
 		my_message=''
 		if not (request.session['my_process_equipment'] or request.session['my_process_location']):
 			my_message='Neither Equipment or Location selected to be processed, Nothing to do !'
@@ -395,10 +404,11 @@ def processsessions(request):
 					#pdb.set_trace()
  			
 			
-			my_message='Sessions examined %d altered %d equipment examined %d\n\n\tequipment matches found %d\n\tequipment matches created %d\n\n\tlocation matches already with locations %d found and added %d checked %d locations examined %d .' % ( mycount['sessions'] , mycount['sessionsaltered'], len(myequip) , mycount['found'] , mycount['new'], mycount['locfound'], mycount['locnew'], mycount['locchecked'], mycount['locations'] )
+			#my_message='Sessions examined %d altered %d equipment examined %d\n\n\tequipment matches found %d\n\tequipment matches created %d\n\n\tlocation matches already with locations %d found and added %d checked %d locations examined %d .' % ( mycount['sessions'] , mycount['sessionsaltered'], len(myequip) , mycount['found'] , mycount['new'], mycount['locfound'], mycount['locnew'], mycount['locchecked'], mycount['locations'] )
 		
 		request.session['mycount']=mycount
-		form = ProcessSessionsForm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
+		form = ProcessSessionsForm(initial={'my_user':userprofile.user_id })
+		#form = ProcessSessionsForm(initial={'my_user':userprofile.user_id, 'my_message':my_message })
 	
 		
 	else:
@@ -413,4 +423,32 @@ def processsessions(request):
 	return render_to_response('gps/processsessions.html', {'form': form , 'user': request.user , 'userprofile':userprofile  } , context_instance=RequestContext(request) )
 
 
+
+
+
+
+##
+##	processsessing_wait
+##
+
+@login_required
+def processesing_wait( request ):
+	userprofile=UserProfile.objects.get(user_id = request.user.id)
+	
+	print request.method
+	pdb.set_trace()
+	request.session['my_message']='Processing sessions.'
+
+	#if request.method == 'GET':
+	#	
+#		pass
+		#form = Processing_Wait(initial={'my_user':userprofile.user_id, 'my_message':my_message })
+	
+		
+	#else:
+	#	return HttpResponseRedirect( '..' ) 
+
+	
+	return render_to_response('gps/processing_wait.html', context_instance=RequestContext(request) )
+	#return render_to_response('gps/processing_wait.html', {'form': form , 'user': request.user , 'userprofile':userprofile  } , context_instance=RequestContext(request) )
 

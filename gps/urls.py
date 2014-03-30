@@ -27,6 +27,7 @@ urlpatterns = patterns('',
 	url(r'^importsessions$', 'gps.views.importsessions', name='importsessions'),
 	url(r'importsessionsresult/(?P<items_added>\d+)/(?P<items_read>\d+)/(?P<items_with_errors>\d+)/(?P<items_found>\d+)/(?P<userprofileid>\d+)' , 'gps.views.importsessionsresult' , name='importsessionsresult'),
 	url(r'^processsessionsconfirm$', 'gps.views.processsessionsconfirm', name='processsessionsconfirm'),
+	url(r'^processing_wait$', 'gps.views.processesing_wait', name='processsesisngsessionswait'),
 	url(r'^processsessions$', 'gps.views.processsessions', name='processsessions'),
 	#url(r'^processsessions/(?P<my_country>)\(?P<my_state>$)', 'gps.views.processsessions', name='processsessions'),
 	
